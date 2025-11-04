@@ -3,6 +3,28 @@
 ## 1. Detailed System Architecture Diagram
 Show the data flow between components: **input → model → response → storage**.
 
+Data Flow
+Frontend Chat Interface → 
+Backend/API Gateway →
+RAG System →
+Backend/API Gateway →
+    Frontend Chat Interface
+    AND
+    Encrypted Log Storage/Analytics DB
+- Input: Empoloyee or Manger login
+- Backend/API Gateway (Processing): receives user query and verifies access level. Passes query to RAG pipeline
+- RAG System: has three subcomponents
+    1. Document Retriever/Vector Database
+    - searches internal HR knowledge base
+    - returns top matching text blocks
+    2. LLM Model Server
+    - Takes retrieve passages and user query to generate a verified answer
+    - provides a reference or citation to the document source
+    3. Response Verifier
+    - checks generated response is based on the document snippet
+    - rejects or flags answers without a valid source
+- Backend/API Gateway (Output and Logging): logs the interation for auditing and analytics and sends verified resonse back to the user interface
+- Response display (Output): what the user sees
 ---
 
 ## 2. Component Descriptions
