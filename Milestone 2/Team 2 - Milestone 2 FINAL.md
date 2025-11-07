@@ -40,7 +40,34 @@ Outline measures for authentication, access control, encryption, and restricted 
 ---
 
 ## 4. Technology and Tool Justification
-Explain the rationale for each chosen technology.
+# If you see this, please edit this section for accuracy
+Each tool and technology in the Muffin Mate system was selected to balance security, scalability, and accuracy while maintaining ease of use for HR and employees. The flowchart demonstrates how the system integrates these technologies through a secure and efficient data flow --- from employee login to verified response output.
+
+**- Ollama (Model Hosting Platform)**\
+Ollama serves as the local model deployment tool that allows the LLM (Llama 3) to run entirely on Muffin Maniacs' in-house servers. This ensures data never leaves the internal network, aligning with our data protection and compliance requirements. It simplifies model updates, reduces cloud costs, and provides full control over uptime and resource allocation.
+
+**- Llama 3 (LLM Model Server)**\
+Llama 3, hosted within Ollama, is the "brain" of the chatbot. It interprets employee questions and produces clear, context-based responses using HR policy data retrieved by the RAG system. Its 8B parameter model provides a mix of accuracy, efficiency, and performance which is capable of handling real-time HR queries without requiring high-end cloud infrastructure.
+
+**- Retrieval-Augmented Generation (RAG) Pipeline**\
+The RAG system ensures that answers are based on company-verified HR documents. The pipeline includes:
+
+-   **Document Retriever / Vector Database:** Searches internal HR databases for relevant text.
+
+-   **Response Verifier:** Confirms that each generated response is grounded in an authorized policy source before returning it to the user.\
+    This design minimizes hallucinations and provides traceable, cited responses for compliance and trust.
+
+**- API Gateway**\
+The API Gateway acts as the central controller for user authentication, query routing, and access control. It verifies employee or manager credentials before passing requests to the RAG system. It also handles logging and analytics, ensuring that each query is securely stored and reviewable for HR insights.
+
+**- Authentication Service**\
+Integrated with existing employee credentials, the authentication service ensures only authorized users can access the system. Failed logins or unauthorized access attempts are handled at this stage, keeping sensitive HR data protected.
+
+**- Encrypted Log Storage / Analytics Database**\
+All interactions are encrypted and stored for auditing and continuous improvement. Analytics derived from these logs help HR identify common questions or unclear policy areas, which can inform updates to the employee handbook.
+
+**- Frontend Chat Interface**\
+The user-facing interface allows employees to interact naturally with the HR system. It displays verified responses, including policy references, and supports follow-up questions. 
 
 ---
 
