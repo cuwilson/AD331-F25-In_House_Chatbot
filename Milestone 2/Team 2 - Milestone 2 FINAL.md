@@ -28,7 +28,18 @@ Backend/API Gateway →
 ---
 
 ## 2. Component Descriptions
-The employee will begin at a computer and loggin to the device which will take it into the authentication process if the loggin is bad it will send the user back to the login screen. If the loggin is succcessful the user will arrive on the input/question screen. After the question is entered it will go into the LLM Ollama RAG Model going through the process. This process includes going through the model, going through the document retrival, and finally through the verifier to send out going out the server storage of the question and answer for later usage and dirrectly to the user displaying the anser and links to the documentation whjere it came from. If the user is happy from the response and all needs satisfied then teh user closes the screen and logs out. If the user is not satisfied additional information is sent to storage, HR is notified of the information disconnect, and the user is taken back to the question screen to repeat the cycle.
+**- User Start
+The employee will begin at a computer and loggin to the device which will take it into the authentication process if the loggin is bad it will send the user back to the login screen.
+**- Ollama Interface
+If the loggin is succcessful the user will arrive on the input/question screen.
+**- Starting the Question Answering Process
+After the question is entered it will go into the LLM Ollama RAG Model going through the process.
+**- AI Model Function
+This process includes going through the model, going through the document retrival, and finally through the verifier to send out going out the server storage of the question and answer for later usage and dirrectly to the user displaying the anser and links to the documentation whjere it came from.
+**- User Satisfaction 
+If the user is happy from the response and all needs satisfied then teh user closes the screen and logs out.
+**- If The User Is Unsatisfied
+If the user is not satisfied additional information is sent to storage, HR is notified of the information disconnect, and the user is taken back to the question screen to repeat the cycle.
 
 
 ---
@@ -40,7 +51,6 @@ One of the security measures being taken is an enforced passowrd policy that wil
 ---
 
 ## 4. Technology and Tool Justification
-# If you see this, please edit this section for accuracy
 Each tool and technology in the Muffin Mate system was selected to balance security, scalability, and accuracy while maintaining ease of use for HR and employees. The flowchart demonstrates how the system integrates these technologies through a secure and efficient data flow --- from employee login to verified response output.
 
 **- Ollama (Model Hosting Platform)**\
