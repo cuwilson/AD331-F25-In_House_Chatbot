@@ -8,7 +8,7 @@ This prototype loads company HR policy PDFs, embeds them using a local embedding
 
 ---
 
-## 🚀 Features Demonstrated
+##  Features Demonstrated
 
 - Local LLM (Llama 3) via Ollama  
 - Local embedding model (sentence-transformers)  
@@ -23,8 +23,8 @@ This satisfies the Milestone 2 flowchart and deliverable requirements.
 
 ---
 
-## 📂 Project Structure
-
+## Project Structure
+```
 prototype/
 │
 ├── prototype.py # Main HR chatbot prototype
@@ -32,10 +32,12 @@ prototype/
 ├── requirements.txt # Python dependencies
 │
 ├── documents/ # Place your HR PDFs here
+│ └── hr/
+│ └── (your HR PDFs)
 │
 └── logs/
 └── interactions.json # Auto-created when prototype runs
-
+```
 
 ---
 
@@ -50,9 +52,9 @@ Ollama is required to run Llama 3 locally.
 
 ---
 
-##  Python Setup
+##  Python Setup and Dependencies
 
-### 2. Install Python 3.12+
+### 2. Install **Python 3.12+**
 Download from:  
 https://www.python.org/downloads/
 
@@ -61,7 +63,7 @@ https://www.python.org/downloads/
 
 ---
 
-## Install Dependencies
+### 3. Install Dependencies
 
 In a terminal (Command Prompt or PowerShell):
 
@@ -76,21 +78,21 @@ This installs
 
 ## Pull Required Ollama Models
 
-### 3. Pull Llama 3
+### 4. Pull **Llama 3**
 
 `ollama pull llama3`
 
-### 4. Pull the local embedding model
+### 5. Pull the local embedding model
 
 `ollama pull nomic-embed-text`
 
 ## Running the Prototype
 
-### 5. Navigate to the project folder
+### 6. Navigate to the project folder
 
 `cd path/to/prototype`
 
-### 6. Run it!
+### 7. Run it!
 
 `python prototype.py`
 
