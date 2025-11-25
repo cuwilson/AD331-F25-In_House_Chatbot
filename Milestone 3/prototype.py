@@ -2,64 +2,125 @@ import json
 import os
 from datetime import datetime
 
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
-from llama_index.llms.ollama import Ollama
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+# ------------------------------
+# CORRECT MODULAR IMPORTS
+# ------------------------------
+import importlib
+
+# --- Import VectorStoreIndex + SimpleDirectoryReader ---
+vector_candidates = [
+    ("llama_index.core", ["VectorStoreIndex", "SimpleDirectoryReader"]),
+    ("llama_index", ["VectorStoreIndex", "SimpleDirectoryReader"]),
+]
+
+VectorStoreIndex = None
+SimpleDirectoryReader = None
+
+for module_name, attrs in vector_candidates:
+    try:
+        module = importlib.import_module(module_name)
+        VectorStoreIndex = getattr(module, attrs[0], None)
+        SimpleDirectoryReader = getattr(module, attrs[1], None)
+        if VectorStoreIndex and SimpleDirectoryReader:
+            break
+    except ImportError:
+        continue
+
+if not VectorStoreIndex or not SimpleDirectoryReader:
+    raise ImportError("Could not import VectorStoreIndex or SimpleDirectoryReader.")
+
+
+# --- Import Ollama LLM ---
+ollama_candidates = [
+    ("llama_index.llms.ollama", "Ollama"),
+    ("llama_index.core.llms.ollama", "Ollama"),
+    ("llama_index.llms", "Ollama"),
+    ("llama_index.core.llms", "Ollama"),
+]
+
+Ollama = None
+for module_name, attr in ollama_candidates:
+    try:
+        module = importlib.import_module(module_name)
+        Ollama = getattr(module, attr, None)
+        if Ollama:
+            break
+    except ImportError:
+        continue
+
+if not Ollama:
+    raise ImportError("Could not import Ollama from ANY known llama_index module path.")
+
+
+# --- Import HuggingFaceEmbedding ---
+embedding_candidates = [
+    ("llama_index.embeddings.huggingface", "HuggingFaceEmbedding"),
+    ("llama_index.embeddings", "HuggingFaceEmbedding"),
+    ("llama_index.core.embeddings", "HuggingFaceEmbedding"),
+]
+
+HuggingFaceEmbedding = None
+for module_name, attr in embedding_candidates:
+    try:
+        module = importlib.import_module(module_name)
+        HuggingFaceEmbedding = getattr(module, attr, None)
+        if HuggingFaceEmbedding:
+            break
+    except ImportError:
+        continue
+
+if not HuggingFaceEmbedding:
+    raise ImportError("Could not import HuggingFaceEmbedding.")
+
+print("Imported OK!")
 
 
 
-
-# --------------
+# ------------------------------
 # CONFIGURATION
-# --------------
+# ------------------------------
+DOCS_FOLDER = "./documents"
+LOG_FILE = "./logs/interactions.json"
+MODEL_NAME = "llama3"
 
-DOCS_FOLDER = "./documents"        # Folder with HR PDFs
-LOG_FILE = "./logs/interactions.json" # Log storage location
-MODEL_NAME = "llama3"                 # The model you pulled with Ollama
-
-# Ensure log directory exists
 os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
 
 
-# --------------
-# LOAD DOCUMENTS AND SET UP RAG
-# --------------
-
+# ------------------------------
+# LOAD DOCUMENTS & BUILD INDEX
+# ------------------------------
 print("Loading HR documents...")
 documents = SimpleDirectoryReader(DOCS_FOLDER).load_data()
 
 print("Building vector index (local embeddings)...")
 
-# Local embedding model (no API keys needed)
 embed_model = HuggingFaceEmbedding(
     model_name="sentence-transformers/all-MiniLM-L6-v2"
 )
 
-# Build vector store index using local embeddings
 index = VectorStoreIndex.from_documents(
     documents,
     embed_model=embed_model
 )
 
-# Connect Llama 3 via Ollama
-llm = Ollama(model="llama3")
+# ------------------------------
+# CONNECT LLM (OLLAMA)
+# ------------------------------
+llm = Ollama(model=MODEL_NAME)
 
-# Create Query Engine (retriever + LLM)
 query_engine = index.as_query_engine(
     llm=llm,
     similarity_top_k=3
 )
 
-print("\nMuffin Mate Prototype Ready!")
-print("Ask HR-related questions. Type 'exit' to quit.\n")
+print("\nSecure Internal Chatbot Prototype Ready!")
+print("Ask HR questions. Type 'exit' to quit.\n")
 
 
-# --------------
+# ------------------------------
 # LOGGING
-# --------------
-
+# ------------------------------
 def log_interaction(user_question, answer, retrieved_context):
-    """Save each interaction in a JSON log file."""
     entry = {
         "timestamp": datetime.now().isoformat(),
         "question": user_question,
@@ -67,7 +128,6 @@ def log_interaction(user_question, answer, retrieved_context):
         "retrieved_context": retrieved_context,
     }
 
-    # Append to JSON file
     if not os.path.exists(LOG_FILE):
         with open(LOG_FILE, "w") as f:
             json.dump([entry], f, indent=4)
@@ -79,41 +139,29 @@ def log_interaction(user_question, answer, retrieved_context):
             json.dump(data, f, indent=4)
 
 
-# --------------
-# HR NOTIFICATION (Placeholder)
-# --------------
-
+# ------------------------------
+# HR NOTIFICATION (PLACEHOLDER)
+# ------------------------------
 def notify_hr(question):
-    """
-    Placeholder for notifying HR when the answer is incomplete or uncertain.
-    In a full system, this could send an email or push message.
-    """
     print("\n[ALERT SENT TO HR]")
     print(f"Flagged question: {question}\n")
 
 
-# --------------
+# ------------------------------
 # RESPONSE VERIFIER
-# --------------
-
+# ------------------------------
 def verify_response(answer, retrieved_text):
-    """
-    Simple check: ensure the answer references or uses retrieved text.
-    """
     answer_lower = str(answer).lower()
     context_lower = " ".join(retrieved_text).lower()
 
-    # Compare a few key words from the retrieved text
     if any(word in answer_lower for word in context_lower.split()[:10]):
-        return True  # Contains meaningful overlap
+        return True
     return False
 
 
-
-# --------------
-# MAIN QUESTION LOOP
-# --------------
-
+# ------------------------------
+# MAIN LOOP
+# ------------------------------
 while True:
     question = input("You: ")
 
@@ -121,25 +169,23 @@ while True:
         print("Goodbye!")
         break
 
-    print("\nRetrieving relevant HR policy sections...")
+    print("\nRetrieving relevant HR sections...")
     response = query_engine.query(question)
 
-    # Extract retrieved context 
+    # Extract retrieved chunks correctly
     retrieved_chunks = [
-        node.node.get_content() for node in response.source_nodes
+        node.get_content() for node in response.source_nodes
     ]
 
     print("\nAnswer:\n", response, "\n")
 
-    # Verify response uses retrieved text
     is_valid = verify_response(response, retrieved_chunks)
 
     # Log interaction
     log_interaction(question, response, retrieved_chunks)
 
-    # Notify HR if not grounded
     if not is_valid:
-        print("⚠ The system is not fully confident this answer is grounded in policy.")
+        print("⚠ The system is not confident this answer is grounded.")
         notify_hr(question)
 
     print("-" * 60)
